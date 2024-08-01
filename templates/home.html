@@ -1,0 +1,109 @@
+<!doctype html>
+<html>
+<head>
+    <title>Panel de Control</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+        .sidebar {
+            width: 200px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background-color: #333;
+            padding-top: 20px;
+        }
+        .sidebar a {
+            padding: 15px 25px;
+            text-decoration: none;
+            font-size: 18px;
+            color: white;
+            display: block;
+        }
+        .sidebar a:hover {
+            background-color: #575757;
+        }
+        .content {
+            margin-left: 220px;
+            padding: 20px;
+        }
+        .button-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+        button.hidden {
+            display: none;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <a href="/">Home</a>
+        <a href="/consola">Consola</a>
+        <a href="/archivos">Archivos</a>
+    </div>
+    <div class="content">
+        <h1>Panel de Control</h1>
+        <div class="button-container">
+            <button id="btnIniciarServer" onclick="iniciarServer()">Iniciar server.py</button>
+            <button id="btnOpcion1" class="hidden" onclick="enviarOpcion(1)">Iniciar servidor</button>
+            <button id="btnOpcion2" class="hidden" onclick="enviarOpcion(2)">Opciones de servidor</button>
+            <button id="btnOpcion3" class="hidden" onclick="enviarOpcion(3)">Gestionar</button>
+        </div>
+    </div>
+
+    <script>
+        function iniciarServer() {
+            fetch('/iniciar_server', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data.respuesta);
+                if (data.respuesta === 'server.py iniciado.') {
+                    document.getElementById('btnIniciarServer').classList.add('hidden');
+                    document.getElementById('btnOpcion1').classList.remove('hidden');
+                    document.getElementById('btnOpcion2').classList.remove('hidden');
+                    document.getElementById('btnOpcion3').classList.remove('hidden');
+                }
+            });
+        }
+
+        function enviarOpcion(opcion) {
+            fetch('/enviar_opcion', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ opcion: opcion })
+            }).then(response => response.json())
+            .then(data => {
+                console.log(data.respuesta);
+                if (opcion === 1) {
+                    location.href = '/consola';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

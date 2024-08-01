@@ -1,0 +1,128 @@
+<!doctype html>
+<html>
+<head>
+    <title>Consola</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+        .sidebar {
+            width: 200px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background-color: #333;
+            padding-top: 20px;
+        }
+        .sidebar a {
+            padding: 15px 25px;
+            text-decoration: none;
+            font-size: 18px;
+            color: white;
+            display: block;
+        }
+        .sidebar a:hover {
+            background-color: #575757;
+        }
+        .content {
+            margin-left: 220px;
+            padding: 20px;
+        }
+        .button-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+        button.hidden {
+            display: none;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #consoleOutput {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            height: 400px;
+            overflow-y: scroll;
+            white-space: pre-line; /* Mantiene los saltos de línea */
+            font-family: monospace; /* Utiliza una fuente monoespaciada para la consola */
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <a href="/">Home</a>
+        <a href="/consola">Consola</a>
+        <a href="/archivos">Archivos</a>
+    </div>
+    <div class="content">
+        <h1>Consola</h1>
+        <div class="button-container">
+            <button id="btnApagarServidor" onclick="apagarServidor()">Apagar servidor</button>
+        </div>
+        <div id="consoleOutput"></div>
+        <div>
+            <input type="text" id="commandInput" placeholder="Escribir comando" />
+            <button onclick="enviarComando()">Enviar comando</button>
+        </div>
+    </div>
+
+    <script>
+        function obtenerSalida() {
+            fetch('/obtener_salida')
+            .then(response => response.json())
+            .then(data => {
+                // Usar textContent para mantener los saltos de línea correctamente
+                document.getElementById('consoleOutput').textContent = data.salida.join('\n');
+                document.getElementById('consoleOutput').scrollTop = document.getElementById('consoleOutput').scrollHeight;
+            });
+        }
+
+        function apagarServidor() {
+            fetch('/apagar_servidor', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data.respuesta);
+                document.getElementById('btnApagarServidor').classList.add('hidden');
+                document.getElementById('commandInput').classList.add('hidden');
+                document.getElementById('commandInput').nextElementSibling.classList.add('hidden');
+            });
+        }
+
+        function enviarComando() {
+            const comando = document.getElementById('commandInput').value;
+            fetch('/enviar_comando', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ comando: comando })
+            }).then(response => response.json())
+            .then(data => {
+                console.log(data.respuesta);
+            });
+        }
+
+        setInterval(obtenerSalida, 1000); // Actualizar salida cada segundo
+    </script>
+</body>
+</html>
